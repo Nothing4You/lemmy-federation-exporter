@@ -83,7 +83,6 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
         r.raise_for_status()
         j = await r.json()
 
-    
     # Get top 100 verified instances that have 2 endorsements and 1 gaurantor
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as cs:
         r = await cs.get(
