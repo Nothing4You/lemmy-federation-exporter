@@ -13,6 +13,9 @@ requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "AGPL-3.0-only"}
 
+[tool.pdm.scripts]
+lemmy-federation-exporter = "python -m lemmy_federation_exporter"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"

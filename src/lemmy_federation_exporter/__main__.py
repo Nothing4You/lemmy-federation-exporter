@@ -83,6 +83,23 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
         r.raise_for_status()
         j = await r.json()
 
+    
+    # Get top 100 verified instances that have 2 endorsements and 1 gaurantor
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as cs:
+        r = await cs.get(
+            "https://fediseer.com/api/v1/whitelist",
+            headers={"user-agent": USER_AGENT},
+            params={
+                "endorsements": 2,
+                "guarantors": 1,
+                "software_csv": "lemmy",
+                "limit": 100,
+                "domains": "true",
+            },
+        )
+        r.raise_for_status()
+        verified_domains = (await r.json())["domains"]
+
     now = datetime.now(UTC)
     cutoff_unseen_instances = now - timedelta(days=2)
     unix_epoch = datetime(1970, 1, 1, tzinfo=UTC)
@@ -102,6 +119,9 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
     )
 
     for i in j["federated_instances"][federation_type]:
+        # Filter domains that are not verified
+        if i["domain"] not in verified_domains:
+            continue
         if "updated" not in i:
             logger.debug("[%s] missing updated for %s", instance, i["domain"])
             continue
