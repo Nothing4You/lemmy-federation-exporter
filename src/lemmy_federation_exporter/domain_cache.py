@@ -64,12 +64,12 @@ class DomainCache:
             )
             r.raise_for_status()
             response: dict[str, list[str]] = await r.json()
-            self.last_updated = datetime.now()
+            self._last_updated = datetime.now()
             self._domains = response["domains"]
             return
 
     async def get_domains(self) -> list[str]:
         # Update verified domain cache if its been longer than 10 minutes
-        if (datetime.now() - self.last_updated).seconds > 600:
+        if (datetime.now() - self._last_updated).seconds > 600:
             await self._update_verified_domains()
         return self._domains
