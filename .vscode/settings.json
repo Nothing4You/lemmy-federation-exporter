@@ -1,4 +1,10 @@
 {
     "python.analysis.typeCheckingMode": "off",
-    "python.analysis.autoImportCompletions": true
+    "python.analysis.autoImportCompletions": true,
+
+    // Enable Black formatter and Formate on Save
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    }
 }

@@ -6,7 +6,6 @@ import aiohttp.web
 from prometheus_client.core import GaugeMetricFamily, Timestamp
 
 from .domain_cache import DomainCache
-
 from .prom_util import CollectorHelper
 
 
@@ -17,6 +16,7 @@ USER_AGENT = os.environ.get("HTTP_USER_AGENT", USER_AGENT)
 verified_domain_cache = aiohttp.web.AppKey("verified_domain_cache", DomainCache)
 
 logger = logging.getLogger(__name__)
+
 
 async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
     instance = request.query.getone("instance")
@@ -109,7 +109,7 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
 
     for i in j["federated_instances"][federation_type]:
         # Check if filtering is enabled
-        if vdc.FILTER_VERIFIED_DOMAINS.lower() in ['1', 'true', 'yes']:
+        if vdc.FILTER_VERIFIED_DOMAINS.lower() in ["1", "true", "yes"]:
             # If the domain is not in the list of verified domains, skip the domain
             if i["domain"] not in await vdc.get_domains():
                 continue
@@ -194,5 +194,6 @@ async def init() -> aiohttp.web.Application:
     )
 
     return app
+
 
 aiohttp.web.run_app(init())
