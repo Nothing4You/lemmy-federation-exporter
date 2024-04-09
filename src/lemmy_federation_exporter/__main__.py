@@ -192,7 +192,7 @@ async def init() -> aiohttp.web.Application:
             aiohttp.web.get("/metrics", metrics),
         ]
     )
-    
+
     return app
 
 aiohttp.web.run_app(init())
