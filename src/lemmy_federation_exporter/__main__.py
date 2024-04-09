@@ -5,6 +5,7 @@ import os
 import aiohttp.web
 from prometheus_client.core import GaugeMetricFamily, Timestamp
 
+from .domain_cache import DomainCache
 
 from .prom_util import CollectorHelper
 
@@ -12,8 +13,10 @@ from .prom_util import CollectorHelper
 USER_AGENT = "Lemmy-Federation-Exporter (+https://github.com/Nothing4You/lemmy-federation-exporter)"
 USER_AGENT = os.environ.get("HTTP_USER_AGENT", USER_AGENT)
 
-logger = logging.getLogger(__name__)
+# Setup sharable aiohttp data
+verified_domain_cache = aiohttp.web.AppKey("verified_domain_cache", DomainCache)
 
+logger = logging.getLogger(__name__)
 
 async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
     instance = request.query.getone("instance")
@@ -83,22 +86,6 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
         r.raise_for_status()
         j = await r.json()
 
-    # Get top 100 verified instances that have 2 endorsements and 1 gaurantor
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as cs:
-        r = await cs.get(
-            "https://fediseer.com/api/v1/whitelist",
-            headers={"user-agent": USER_AGENT},
-            params={
-                "endorsements": 2,
-                "guarantors": 1,
-                "software_csv": "lemmy",
-                "limit": 100,
-                "domains": "true",
-            },
-        )
-        r.raise_for_status()
-        verified_domains = (await r.json())["domains"]
-
     now = datetime.now(UTC)
     cutoff_unseen_instances = now - timedelta(days=2)
     unix_epoch = datetime(1970, 1, 1, tzinfo=UTC)
@@ -117,10 +104,15 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
         for i in j["federated_instances"][federation_type]
     )
 
+    # Access the shared verified domain cache
+    vdc = request.app[verified_domain_cache]
+
     for i in j["federated_instances"][federation_type]:
-        # Filter domains that are not verified
-        if i["domain"] not in verified_domains:
-            continue
+        # Check if filtering is enabled
+        if vdc.FILTER_VERIFIED_DOMAINS.lower() in ['1', 'true', 'yes']:
+            # If the domain is not in the list of verified domains, skip the domain
+            if i["domain"] not in await vdc.get_domains():
+                continue
         if "updated" not in i:
             logger.debug("[%s] missing updated for %s", instance, i["domain"])
             continue
@@ -181,7 +173,7 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:
     return aiohttp.web.Response(text=metrics_result)
 
 
-def main() -> None:
+async def init() -> aiohttp.web.Application:
     logging.basicConfig(
         level=os.environ.get("LOGLEVEL", "INFO").upper(),
         format="%(asctime)s - %(levelname)8s - %(name)s:%(funcName)s - %(message)s",
@@ -194,13 +186,13 @@ def main() -> None:
     )
 
     app = aiohttp.web.Application()
+    app[verified_domain_cache] = await DomainCache.create()
     app.add_routes(
         [
             aiohttp.web.get("/metrics", metrics),
         ]
     )
-    aiohttp.web.run_app(app)
+    
+    return app
 
-
-if __name__ == "__main__":
-    main()
+aiohttp.web.run_app(init())
