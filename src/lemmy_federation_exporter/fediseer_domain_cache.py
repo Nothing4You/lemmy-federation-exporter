@@ -5,20 +5,17 @@ from typing import Any
 
 import aiohttp.web
 
-
 logger = logging.getLogger(__name__)
 
 
 class FediseerDomainCache:
-    _user_agent: str
+    _session: aiohttp.ClientSession
     _whitelist_params: dict[str, int | str]
 
-    _refresh_interval: int
-    _domains: set[str] = set()
+    _domains: set[str]
     _last_updated: datetime | None = None
+    _refresh_interval: int
     _update_task: asyncio.Task[Any] | None = None
-
-    _session: aiohttp.ClientSession
 
     def __init__(
         self,
@@ -29,7 +26,7 @@ class FediseerDomainCache:
         software_csv: str | None = None,
         return_limit: int | None = None,
         refresh_interval: int = 3600,
-    ):
+    ) -> None:
         self._session = aiohttp.ClientSession(
             headers={"user-agent": user_agent},
             timeout=aiohttp.ClientTimeout(total=10),
@@ -37,6 +34,7 @@ class FediseerDomainCache:
         self._whitelist_params = {
             "domains": "true",
         }
+        self._domains = set()
         if min_endorsements is not None:
             self._whitelist_params["endorsements"] = min_endorsements
         if min_guarantors is not None:
@@ -50,10 +48,12 @@ class FediseerDomainCache:
     async def _update_verified_domains(self) -> None:
         logger.info("Refreshing Fediseer domain list")
 
-        # Get first n verified instances with the required amount of endorsements and guarantors
-        # TODO: This does not implement pagination currently, so a maximum of 100 domains is supported.
-        # TODO: This is not also sorted by user counts or guarantee/endorsement count, the API returns
-        # TODO: it by descending instance creation date.
+        # Get first n verified instances with the required amount of endorsements and
+        # guarantors
+        # TODO: This does not implement pagination currently, so a maximum of 100
+        # TODO: domains is supported. This is not also sorted by user counts or
+        # TODO: guarantee/endorsement count, the API returns it by descending instance
+        # TODO: creation date.
         async with self._session.get(
             "https://fediseer.com/api/v1/whitelist",
             params=self._whitelist_params,

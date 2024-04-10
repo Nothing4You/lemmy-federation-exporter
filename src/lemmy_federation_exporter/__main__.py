@@ -1,15 +1,14 @@
 import asyncio
-from datetime import datetime, timedelta, UTC
 import logging
 import os
-from typing import TypedDict, NotRequired
+from datetime import UTC, datetime, timedelta
+from typing import NotRequired, TypedDict
 
 import aiohttp.web
 from prometheus_client.core import GaugeMetricFamily, Timestamp
 
 from .fediseer_domain_cache import FediseerDomainCache
 from .prom_util import CollectorHelper
-
 
 USER_AGENT = os.environ.get(
     "HTTP_USER_AGENT",
@@ -209,7 +208,8 @@ async def init_filter_fediseer(app: aiohttp.web.Application) -> None:
         if env_val is not None:
             if t is int:
                 try:
-                    # TODO: Figure out if this can be dealt with properly without skipping type checking
+                    # TODO: Figure out if this can be dealt with properly without
+                    # TODO: skipping type checking
                     kwargs[k] = int(env_val)  # type: ignore[literal-required]
                 except ValueError:
                     logger.warning(
@@ -218,7 +218,8 @@ async def init_filter_fediseer(app: aiohttp.web.Application) -> None:
                         env_val,
                     )
             else:
-                # TODO: Figure out if this can be dealt with properly without skipping type checking
+                # TODO: Figure out if this can be dealt with properly without
+                # TODO: skipping type checking
                 kwargs[k] = env_val  # type: ignore[literal-required]
 
     app[fediseer_domain_cache] = FediseerDomainCache(
@@ -261,4 +262,5 @@ async def init() -> aiohttp.web.Application:
     return app
 
 
-aiohttp.web.run_app(init())
+if __name__ == "__main__":
+    aiohttp.web.run_app(init())
