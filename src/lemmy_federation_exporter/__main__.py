@@ -125,12 +125,16 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa
         fediseer_domains = set()
 
     for i in j["federated_instances"][federation_type]:
-        # Skip if the iteration's domain does not match the filter instance
-        if i["domain"].strip().lower() != filter_instance.strip().lower():
-            continue
+        remote_instance = i["domain"].strip().lower()
+
+        # If the domain filter is passed as query parameter and the domain is not included, skip the domain.
+        # This replaces the fediseer filter if it's set.
+        if remote_instances_filter is not None:
+            if remote_instance not in remote_instances_filter:
+                continue
 
         # If the domain is not in the list of verified domains, skip the domain
-        if FILTER_FEDISEER_ENABLED and i["domain"].lower() not in fediseer_domains:
+        elif FILTER_FEDISEER_ENABLED and remote_instance not in fediseer_domains:
             continue
 
         if "updated" not in i:
