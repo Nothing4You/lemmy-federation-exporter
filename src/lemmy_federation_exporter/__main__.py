@@ -33,10 +33,9 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa
 
     # Get request query paramaters
     instance = request.query.getone("instance")
-    remote_instances_filter = request.query.get("remote_instances")
-    if remote_instances_filter is not None:
-        remote_instances_filter: list[str] | None = remote_instances_filter.lower().split(",")
-
+    remote_instances_filter_str: str | None = request.query.get("remote_instances")
+    if remote_instances_filter_str is not None:
+        remote_instances_filter = remote_instances_filter_str.lower().split(",")
     c = CollectorHelper()
 
     # last_retry = Last send try
@@ -129,7 +128,9 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa
     for i in j["federated_instances"][federation_type]:
         remote_instance = i["domain"].strip().lower()
 
-        # If the domain filter is passed as query parameter and the domain is not included, skip the domain.
+        # If the domain filter is passed as query
+        # parameter and the domain is not included, skip the domain.
+        #
         # This replaces the fediseer filter if it's set.
         if remote_instances_filter is not None:
             if remote_instance not in remote_instances_filter:
