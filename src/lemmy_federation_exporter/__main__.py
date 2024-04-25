@@ -127,11 +127,9 @@ async def metrics(
         fediseer_domains = set()
 
     for i in j["federated_instances"][federation_type]:
-        # Check filter_instance url parameter to see if something is set
-        if filter_instance != "none":
-            # Skip if the current iterated domain is not the filtered instance
-            if i["domain"].strip().lower() != filter_instance.strip().lower():
-                continue
+        # Skip if the iteration's domain does not match the filter instance
+        if i["domain"].strip().lower() != filter_instance.strip().lower():
+            continue
 
         # If the domain is not in the list of verified domains, skip the domain
         if FILTER_FEDISEER_ENABLED and i["domain"].lower() not in fediseer_domains:
