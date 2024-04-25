@@ -29,8 +29,13 @@ logger = logging.getLogger(__name__)
 
 # TODO: This should probably be split a bit to improve readability.
 # TOOD: Afterwards the noqa marker for PLR0915 can be removed.
-async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa: PLR0915
+async def metrics(
+    request: aiohttp.web.Request,
+) -> aiohttp.web.Response:  # noqa: PLR0915
+
+    # Get request query paramaters
     instance = request.query.getone("instance")
+    filter_instance = request.query.get("filter_instance", "none")
 
     c = CollectorHelper()
 
@@ -122,6 +127,12 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa
         fediseer_domains = set()
 
     for i in j["federated_instances"][federation_type]:
+        # Check filter_instance url parameter to see if something is set
+        if filter_instance != "none":
+            # Skip if the current iterated domain is not the filtered instance
+            if i["domain"].strip().lower() != filter_instance.strip().lower():
+                continue
+
         # If the domain is not in the list of verified domains, skip the domain
         if FILTER_FEDISEER_ENABLED and i["domain"].lower() not in fediseer_domains:
             continue
