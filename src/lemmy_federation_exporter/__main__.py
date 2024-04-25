@@ -29,9 +29,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: This should probably be split a bit to improve readability.
 # TOOD: Afterwards the noqa marker for PLR0915 can be removed.
-async def metrics(
-    request: aiohttp.web.Request,
-) -> aiohttp.web.Response:  # noqa: PLR0915
+async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa: PLR0915
 
     # Get request query paramaters
     instance = request.query.getone("instance")
