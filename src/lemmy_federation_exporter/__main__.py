@@ -28,14 +28,16 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: This should probably be split a bit to improve readability.
-# TOOD: Afterwards the noqa marker for C901, PLR0912, and PLR0915 can be removed.
-async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa: C901, PLR0912, PLR0915
+# TOOD: Afterwards the noqa marker for C901, and PLR0915 can be removed.
+async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa: C901, PLR0915
     # Get request query paramaters
     instance = request.query.getone("instance")
     remote_instances_filter_str: str | None = request.query.get("remote_instances")
-    remote_instances_filter: list[str] | None = None
-    if remote_instances_filter_str is not None:
-        remote_instances_filter = remote_instances_filter_str.lower().split(",")
+    remote_instances_filter = (
+        remote_instances_filter_str.lower().split(",")
+        if remote_instances_filter_str is not None
+        else None
+    )
     c = CollectorHelper()
 
     # last_retry = Last send try
