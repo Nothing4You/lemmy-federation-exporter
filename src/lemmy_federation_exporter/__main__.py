@@ -35,7 +35,7 @@ async def metrics(request: aiohttp.web.Request) -> aiohttp.web.Response:  # noqa
     instance = request.query.getone("instance")
     remote_instances_filter = request.query.get("remote_instances")
     if remote_instances_filter is not None:
-        remote_instances_filter = remote_instances_filter.lower().split(",")
+        remote_instances_filter: list[str] | None = remote_instances_filter.lower().split(",")
 
     c = CollectorHelper()
 
