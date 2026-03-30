@@ -9,7 +9,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/pdm-project/pdm
-    rev: fd65eb12a75c87f11f24d91b80d8beee4edf64d0  # frozen: 2.26.7
+    rev: fd65eb12a75c87f11f24d91b80d8beee4edf64d0 # frozen: 2.26.7
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/asottile/pyupgrade
@@ -29,7 +29,7 @@ repos:
         additional_dependencies:
           - prettier@3.2.5
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: aca6d4c8045a504e2812ea4bedff1d0a09e437bc  # frozen: v0.15.8
+    rev: aca6d4c8045a504e2812ea4bedff1d0a09e437bc # frozen: v0.15.8
     hooks:
       # Run the linter.
       - id: ruff
