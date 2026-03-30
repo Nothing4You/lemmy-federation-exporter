@@ -269,9 +269,11 @@ async def init() -> aiohttp.web.Application:
     )
 
     logging.Formatter.formatTime = (  # type: ignore[method-assign]
-        lambda self, record, datefmt: datetime.fromtimestamp(record.created, UTC)  # type: ignore[assignment,misc] # noqa: ARG005
-        .astimezone()
-        .isoformat()
+        lambda self, record, datefmt: (
+            datetime.fromtimestamp(record.created, UTC)  # type: ignore[assignment,misc] # noqa: ARG005
+            .astimezone()
+            .isoformat()
+        )
     )
 
     app = aiohttp.web.Application()
