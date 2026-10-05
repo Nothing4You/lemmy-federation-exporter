@@ -9,7 +9,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/pdm-project/pdm
-    rev: b53ab41c8c50ac1648b19dfcd14954642c09e662 # frozen: 2.26.4
+    rev: 5c0dbc466ebc62637ced3863ece094349699ef2f # frozen: 2.29.2
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/asottile/pyupgrade
@@ -29,7 +29,7 @@ repos:
         additional_dependencies:
           - prettier@3.2.5
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 9b1e9a33f1b33f6ecc2fdbb8d7cc894e951106e4 # frozen: v0.14.13
+    rev: f12be1ebaa5351c1fc76472de98db2c3446c8253 # frozen: v0.16.10
     hooks:
       # Run the linter.
       - id: ruff
@@ -39,7 +39,7 @@ repos:
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: a66e98df7b4aeeb3724184b332785976d062b92e # frozen: v1.19.1
+    rev: 2834ec6639549dd6796205c8f011dedcd587288b # frozen: v2.4.0
     hooks:
       - id: mypy
         args: [--strict, --ignore-missing-imports]
